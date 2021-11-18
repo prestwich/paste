@@ -138,6 +138,49 @@ pub(crate) fn parse(tokens: &mut Peekable<token_stream::IntoIter>) -> Result<Vec
     Ok(segments)
 }
 
+enum NonSnake {
+    Camel,
+    Pascal,
+}
+
+fn ensnaken(string: &str) -> String {
+    let mut acc = String::new();
+    let mut prev = '_';
+    for ch in string.chars() {
+        if ch.is_uppercase() && prev != '_' {
+            acc.push('_');
+        }
+        acc.push(ch);
+        prev = ch;
+    }
+    acc.to_lowercase()
+}
+
+fn desnaken(string: &str, animal: NonSnake) -> String {
+    let mut acc = String::new();
+    let mut prev = match animal {
+        NonSnake::Camel => '/',
+        NonSnake::Pascal => '_',
+    };
+    for ch in string.chars() {
+        if ch != '_' {
+            if prev == '_' {
+                for chu in ch.to_uppercase() {
+                    acc.push(chu);
+                }
+            } else if prev.is_uppercase() {
+                for chl in ch.to_lowercase() {
+                    acc.push(chl);
+                }
+            } else {
+                acc.push(ch);
+            }
+        }
+        prev = ch;
+    }
+    acc
+}
+
 pub(crate) fn paste(segments: &[Segment]) -> Result<String> {
     let mut evaluated = Vec::new();
     let mut is_lifetime = false;
@@ -174,45 +217,11 @@ pub(crate) fn paste(segments: &[Segment]) -> Result<String> {
                     }
                 };
                 match ident.to_string().as_str() {
-                    "lower" => {
-                        evaluated.push(last.to_lowercase());
-                    }
-                    "upper" => {
-                        evaluated.push(last.to_uppercase());
-                    }
-                    "snake" => {
-                        let mut acc = String::new();
-                        let mut prev = '_';
-                        for ch in last.chars() {
-                            if ch.is_uppercase() && prev != '_' {
-                                acc.push('_');
-                            }
-                            acc.push(ch);
-                            prev = ch;
-                        }
-                        evaluated.push(acc.to_lowercase());
-                    }
-                    "camel" => {
-                        let mut acc = String::new();
-                        let mut prev = '_';
-                        for ch in last.chars() {
-                            if ch != '_' {
-                                if prev == '_' {
-                                    for chu in ch.to_uppercase() {
-                                        acc.push(chu);
-                                    }
-                                } else if prev.is_uppercase() {
-                                    for chl in ch.to_lowercase() {
-                                        acc.push(chl);
-                                    }
-                                } else {
-                                    acc.push(ch);
-                                }
-                            }
-                            prev = ch;
-                        }
-                        evaluated.push(acc);
-                    }
+                    "lower" => evaluated.push(last.to_lowercase()),
+                    "upper" => evaluated.push(last.to_uppercase()),
+                    "snake" => evaluated.push(ensnaken(&last)),
+                    "camel" => evaluated.push(desnaken(&last, NonSnake::Camel)),
+                    "pascal" => evaluated.push(desnaken(&last, NonSnake::Pascal)),
                     _ => {
                         return Err(Error::new2(
                             colon.span,
