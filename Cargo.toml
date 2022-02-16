@@ -1,6 +1,6 @@
 [package]
 name = "affix"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["David Tolnay <dtolnay@gmail.com>", "James Prestwich <james@prestwi.ch>"]
 edition = "2018"
 rust-version = "1.31"
