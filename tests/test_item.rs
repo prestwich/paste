@@ -1,5 +1,5 @@
 mod test_basic {
-    use paste::paste;
+    use affix::paste;
 
     struct Struct;
 
@@ -16,7 +16,7 @@ mod test_basic {
 }
 
 mod test_in_impl {
-    use paste::paste;
+    use affix::paste;
 
     struct Struct;
 
@@ -33,7 +33,7 @@ mod test_in_impl {
 }
 
 mod test_none_delimited_single_ident {
-    use paste::paste;
+    use affix::paste;
 
     macro_rules! m {
         ($id:ident) => {
@@ -54,7 +54,7 @@ mod test_none_delimited_single_ident {
 }
 
 mod test_none_delimited_single_lifetime {
-    use paste::paste;
+    use affix::paste;
 
     macro_rules! m {
         ($life:lifetime) => {
@@ -76,7 +76,7 @@ mod test_none_delimited_single_lifetime {
 }
 
 mod test_to_lower {
-    use paste::paste;
+    use affix::paste;
 
     macro_rules! m {
         ($id:ident) => {
@@ -97,7 +97,7 @@ mod test_to_lower {
 }
 
 mod test_to_upper {
-    use paste::paste;
+    use affix::paste;
 
     macro_rules! m {
         ($id:ident) => {
@@ -116,7 +116,7 @@ mod test_to_upper {
 }
 
 mod test_to_snake {
-    use paste::paste;
+    use affix::paste;
 
     macro_rules! m {
         ($id:ident) => {
@@ -139,7 +139,7 @@ mod test_to_snake {
 }
 
 mod test_to_camel {
-    use paste::paste;
+    use affix::paste;
 
     macro_rules! m {
         ($id:ident) => {
@@ -162,7 +162,7 @@ mod test_to_camel {
 }
 
 mod test_to_pascal {
-    use paste::paste;
+    use affix::paste;
 
     macro_rules! m {
         ($id:ident) => {
@@ -187,7 +187,7 @@ mod test_to_pascal {
 mod test_doc_expr {
     // https://github.com/dtolnay/paste/issues/29
 
-    use paste::paste;
+    use affix::paste;
 
     macro_rules! doc_expr {
         ($doc:expr) => {
@@ -209,7 +209,7 @@ mod test_doc_expr {
 mod test_type_in_path {
     // https://github.com/dtolnay/paste/issues/31
 
-    use paste::paste;
+    use affix::paste;
 
     mod keys {
         #[derive(Default)]
@@ -250,7 +250,7 @@ mod test_type_in_path {
 mod test_type_in_fn_arg {
     // https://github.com/dtolnay/paste/issues/38
 
-    use paste::paste;
+    use affix::paste;
 
     fn _jit_address(_node: ()) {}
 
@@ -275,7 +275,7 @@ mod test_type_in_fn_arg {
 mod test_pat_in_expr_position {
     // https://github.com/xiph/rav1e/pull/2324/files
 
-    use paste::paste;
+    use affix::paste;
 
     macro_rules! rav1e_bad {
         ($e:pat) => {

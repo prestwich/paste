@@ -1,4 +1,4 @@
-use paste::paste;
+use affix::paste;
 
 #[test]
 fn test_paste_doc() {

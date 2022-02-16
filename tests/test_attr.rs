@@ -1,4 +1,4 @@
-use paste::paste;
+use affix::paste;
 use paste_test_suite::paste_test;
 
 #[test]
