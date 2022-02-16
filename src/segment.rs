@@ -1,4 +1,5 @@
 use crate::error::{Error, Result};
+use convert_case::{Case, Casing};
 use proc_macro::{token_stream, Delimiter, Ident, Span, TokenTree};
 use std::iter::Peekable;
 
@@ -154,64 +155,42 @@ pub(crate) fn paste(segments: &[Segment]) -> Result<String> {
                 is_lifetime = true;
             }
             Segment::Env(var) => {
-                let resolved = match std::env::var(&var.value) {
-                    Ok(resolved) => resolved,
-                    Err(_) => {
-                        return Err(Error::new(
-                            var.span,
-                            &format!("no such env var: {:?}", var.value),
-                        ));
-                    }
-                };
-                let resolved = resolved.replace('-', "_");
-                evaluated.push(resolved);
+                let resolved = std::env::var(&var.value).map_err(|_| {
+                    Error::new(var.span, &format!("no such env var: {:?}", var.value))
+                })?;
+                evaluated.push(resolved.replace('-', "_"));
             }
             Segment::Modifier(colon, ident) => {
-                let last = match evaluated.pop() {
-                    Some(last) => last,
-                    None => {
-                        return Err(Error::new2(colon.span, ident.span(), "unexpected modifier"))
+                let case = match ident.to_string().to_case(Case::Snake).as_str() {
+                    "camel" => Case::Camel,
+                    "pascal" => Case::Pascal,
+                    "snake" => Case::Snake,
+                    "upper_snake" => Case::UpperSnake,
+                    "screaming_snake" => Case::ScreamingSnake,
+                    "kebab" => Case::Kebab,
+                    "cobol" => Case::Cobol,
+                    "upper_kebab" => Case::UpperKebab,
+                    "train" => Case::Train,
+                    "flat" => Case::Flat,
+                    "upper_flat" => Case::UpperFlat,
+                    "alternating" => Case::Alternating,
+                    "to_lower" | "lower" => {
+                        evaluated
+                            .last_mut()
+                            .map(|last| *last = last.to_lowercase())
+                            .ok_or_else(|| {
+                                Error::new2(colon.span, ident.span(), "unexpected modifier")
+                            })?;
+                        continue;
                     }
-                };
-                match ident.to_string().as_str() {
-                    "lower" => {
-                        evaluated.push(last.to_lowercase());
-                    }
-                    "upper" => {
-                        evaluated.push(last.to_uppercase());
-                    }
-                    "snake" => {
-                        let mut acc = String::new();
-                        let mut prev = '_';
-                        for ch in last.chars() {
-                            if ch.is_uppercase() && prev != '_' {
-                                acc.push('_');
-                            }
-                            acc.push(ch);
-                            prev = ch;
-                        }
-                        evaluated.push(acc.to_lowercase());
-                    }
-                    "camel" => {
-                        let mut acc = String::new();
-                        let mut prev = '_';
-                        for ch in last.chars() {
-                            if ch != '_' {
-                                if prev == '_' {
-                                    for chu in ch.to_uppercase() {
-                                        acc.push(chu);
-                                    }
-                                } else if prev.is_uppercase() {
-                                    for chl in ch.to_lowercase() {
-                                        acc.push(chl);
-                                    }
-                                } else {
-                                    acc.push(ch);
-                                }
-                            }
-                            prev = ch;
-                        }
-                        evaluated.push(acc);
+                    "to_upper" | "upper" => {
+                        evaluated
+                            .last_mut()
+                            .map(|last| *last = last.to_uppercase())
+                            .ok_or_else(|| {
+                                Error::new2(colon.span, ident.span(), "unexpected modifier")
+                            })?;
+                        continue;
                     }
                     _ => {
                         return Err(Error::new2(
@@ -220,7 +199,12 @@ pub(crate) fn paste(segments: &[Segment]) -> Result<String> {
                             "unsupported modifier",
                         ));
                     }
-                }
+                };
+
+                evaluated
+                    .last_mut()
+                    .map(|last| *last = last.to_case(case))
+                    .ok_or_else(|| Error::new2(colon.span, ident.span(), "unexpected modifier"))?;
             }
         }
     }

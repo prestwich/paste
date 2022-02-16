@@ -155,9 +155,32 @@ mod test_to_camel {
 
     #[test]
     fn test_to_camel() {
-        assert_eq!(DEFAULT_CAMEL, "ThisIsButATest");
+        assert_eq!(DEFAULT_CAMEL, "thisIsButATest");
         assert_eq!(LOWER_CAMEL, "thisisbutatest");
         assert_eq!(UPPER_CAMEL, "THISISBUTATEST");
+    }
+}
+
+mod test_to_pascal {
+    use paste::paste;
+
+    macro_rules! m {
+        ($id:ident) => {
+            paste! {
+                const DEFAULT_PASCAL: &str = stringify!([<$id:pascal>]);
+                const LOWER_PASCAL: &str = stringify!([<$id:pascal:lower>]);
+                const UPPER_PASCAL: &str = stringify!([<$id:pascal:upper>]);
+            }
+        };
+    }
+
+    m!(this_is_but_a_test);
+
+    #[test]
+    fn test_to_pascal() {
+        assert_eq!(DEFAULT_PASCAL, "ThisIsButATest");
+        assert_eq!(LOWER_PASCAL, "thisisbutatest");
+        assert_eq!(UPPER_PASCAL, "THISISBUTATEST");
     }
 }
 

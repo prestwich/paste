@@ -155,9 +155,19 @@ fn test_env_to_upper() {
 #[test]
 fn test_env_to_snake() {
     paste! {
-        const [<LIB env!("CARGO_PKG_NAME"):snake:upper>]: &str = "libpaste";
+        const [<LIB env!("CARGO_PKG_NAME"):screaming_snake>]: &str = "libpaste";
 
         let _ = LIBPASTE;
+    }
+}
+
+#[test]
+fn test_env_to_pascal() {
+    paste! {
+        #[allow(non_upper_case_globals)]
+        const [<LIB env!("CARGO_PKG_NAME"):pascal>]: &str = "libpaste";
+
+        let _ = LIBPaste;
     }
 }
 
@@ -167,7 +177,9 @@ fn test_env_to_camel() {
         #[allow(non_upper_case_globals)]
         const [<LIB env!("CARGO_PKG_NAME"):camel>]: &str = "libpaste";
 
-        let _ = LIBPaste;
+        dbg!(env!("CARGO_PKG_NAME"));
+
+        let _ = LIBpaste;
     }
 }
 
